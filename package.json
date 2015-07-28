@@ -10,6 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "form-data": "^1.0.0-rc2",
+    "q": "^1.4.1",
     "request": "^2.60.0"
   }
 }

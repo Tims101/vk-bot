@@ -1,7 +1,7 @@
 var request = require('request');
 var fs = require('fs');
 
-var accessToken = 'e51b607eb1a3b18b5f1c8be97a5ab5414f0012f6e900bfa319a302b75725fa53fda7f72b57c5bc1a0cf72';
+var accessToken = '727a212db4bf3d306cb27a486344c61384a9a4170d006d569938f92802df4cebf5e96f1376cd6e0f10647';
 
 var exec = function(method, params, callback) {
 	params.access_token = accessToken;
@@ -32,10 +32,18 @@ var searchRaccoon = function(q, cb) {
 		},
 		json: true
 	}, function(e, r, b) {
+		if (e) {console.error('Error! 4', e);}
 		start += 1;
 		start %= 2048;
 		console.log(e, b);
+
+		if (b.responseData.results.length === 0) {
+			console.error('Empty responce', q);
+			return;
+		}
+
 		var file = start + '.jpg';
+
 		console.log('GET URL', b.responseData.results[0].unescapedUrl);
 		var r = request.get(b.responseData.results[0].unescapedUrl).pipe(fs.createWriteStream(file));
 		r.on('finish', function() { cb(file); });
@@ -44,6 +52,7 @@ var searchRaccoon = function(q, cb) {
 
 var uploadPhoto = function(query, cb) {
 	exec('photos.getMessagesUploadServer', {}, function(e, r, b) {
+		if (e) {console.error('Error! 3', e);}
 		searchRaccoon(query, function(rs) {
 			console.log('Post url', b.response.upload_url);
 			var r = request.post({
@@ -56,7 +65,8 @@ var uploadPhoto = function(query, cb) {
 				console.log('Upload response', b);
 
 				exec('photos.saveMessagesPhoto', b, function(e, r, b) {
-					console.log(b);
+					if (e) {console.error('Error! 66', e); return; }
+
 					cb('photo' + CURRENT_USER + '_' + b.response[0].id);
 				});
 			});
@@ -83,6 +93,7 @@ var sendRaccoon = function(query, chatId) {
 	uploadPhoto(query, function(attachment_id) {
 		console.log('Attachment_id', attachment_id);
 		exec('messages.send', {chat_id: chatId, attachment: attachment_id}, function(e, r, body) {
+			if (e) {console.error('Error! 2', e);}
 			console.log('Message sent', body);
 		});
 	});
@@ -90,6 +101,7 @@ var sendRaccoon = function(query, chatId) {
 
 var handler = function() {
 	exec('messages.get', {last_message_id: lastId}, function(error, response, body) {
+		if (error) {console.error('Error!', error);}
 		var chats = chatWithRaccoon(body.response.items);
 
 		if (body.response.items.length > 0) {
