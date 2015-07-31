@@ -28,12 +28,12 @@ module.exports = function(options) {
 	var fileId = 0;
 	var getFile = function() {
 		fileId = (fileId + 1) % 256;
-		return fileId + '.jpg';
+		return fileId;
 	};
 
-	var saveFile = function(url) {
+	var saveFile = function(url, ext) {
 		var deferred = Q.defer();
-		var filename = getFile();
+		var filename = getFile() + ext;
 		var downloadImageStream = request.raw.get(url).pipe(fs.createWriteStream(filename));
 
 		downloadImageStream.on('finish', function() {
@@ -56,7 +56,7 @@ module.exports = function(options) {
 	this.messages.getImageAttachmentId = function(url) {
 		console.log('[vk] Attachment url', url);
 
-		return Q.all([this.photos.getMessagesUploadServer(), saveFile(url)])
+		return Q.all([this.photos.getMessagesUploadServer(), saveFile(url, '.jpg')])
 			.then(function(res) {
 				var result = res[0];
 				var file = res[1];
@@ -97,6 +97,49 @@ module.exports = function(options) {
 	this.photos.saveMessagesPhoto = function(data) {
 		console.log('[vk] Save message photo', data);
 		return this.executeMethod('photos.saveMessagesPhoto', data);
+	}.bind(this);
+
+	this.docs = {};
+
+	this.docs.getAttachmentId = function(url) {
+		console.log('[vk] Document attachment url', url);
+		return Q.all([this.docs.getUploadServer(), saveFile(url, '.gif')])
+			.then(function(res) {
+				var result = res[0];
+				var file = res[1];
+
+				return this.docs.uploadToServer(result.response.upload_url, fs.createReadStream(file));
+			}.bind(this))
+			.then(this.docs.save.bind(this))
+			.then(function(result) {
+				console.log("[vk] Document uploaded", result);
+				return 'doc' + this.userId + '_' + result.response[0].id;
+			}.bind(this))
+			.catch(function(error) {
+				console.error('[vk] Error while getting doc upload server', error);
+			})
+	}.bind(this);
+
+	this.docs.getUploadServer = function() {
+		console.log('[vk] Get document upload server');
+		return this.executeMethod('docs.getUploadServer');
+	}.bind(this);
+
+	this.docs.uploadToServer = function(url, fileStream) {
+		console.log('[vk] Upload document to url');
+		return request({
+			method: 'POST',
+			uri: url,
+			formData: {
+				file: fileStream
+			},	
+			json: true
+		});
+	};
+
+	this.docs.save = function(data) {
+		console.log('[vk] Save document');
+		return this.executeMethod('docs.save', data);
 	}.bind(this);
 };
 

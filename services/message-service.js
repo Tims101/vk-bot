@@ -5,6 +5,7 @@ module.exports = function(vk, onMessage) {
 
 	var initialize = vk.messages.get({count: 1})
 		.then(function(data) {
+			console.log(data);
 			lastMessageId = data.response.items[0].id;
 		})
 		.catch(function(error) {
@@ -17,7 +18,7 @@ module.exports = function(vk, onMessage) {
 				var messages = data.response.items;
 				lastMessageId = messages.length ? messages[0].id : lastMessageId;
 
-				messages.forEach(onMessage);
+				messages.reverse().forEach(onMessage);
 			})
 			.catch(function(error) {
 				console.error('[Message-Service] Error while listening', error);
