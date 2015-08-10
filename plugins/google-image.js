@@ -7,11 +7,12 @@ module.exports = function(vk) {
 	var RESULT_SIZE = '1';
 	var IMAGE_SIZE = 'medium';
 
-	var imageNumber = 0;
-	var MAX_IMAGE_NUMBER = 2048;
+	var imageNumbers = {};
 
 	return function(message, query) {
 		console.log('[plugin][google-image] Run plugin', message, query);
+		imageNumbers[query] = imageNumbers[query] === undefined ? 0 : (imageNumbers[query]  + 1);
+		console.log('Image number', imageNumbers[query]);
 		request({
 			method: 'GET',
 			url: 'https://ajax.googleapis.com/ajax/services/search/images',
@@ -20,7 +21,7 @@ module.exports = function(vk) {
 				rsz: RESULT_SIZE, 
 				q: query,
 				imgsz: IMAGE_SIZE,
-				start: imageNumber
+				start: imageNumbers[query]
 			},
 			json: true
 		})
@@ -28,8 +29,6 @@ module.exports = function(vk) {
 			if (!result.responseData.results) {
 				return console.info('[plugin][google-image] Empty response for query', query);
 			}
-
-			imageNumber = (imageNumber + 1) % MAX_IMAGE_NUMBER;
 
 			var image = result.responseData.results[0].unescapedUrl;
 			return vk.messages.getImageAttachmentId(image)
@@ -39,7 +38,7 @@ module.exports = function(vk) {
 						user_id: message.chat_id ? undefined : message.user_id,
 						attachment: photo
 					});
-				})
+				});
 		})
 		.catch(function(error) {
 			console.error('[plugin][google-image] Error while getting image', error)

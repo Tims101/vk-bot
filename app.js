@@ -7,8 +7,8 @@ var googleAnimationPlugin = require('./plugins/google-animation');
 var timePlugin = require('./plugins/time');
 
 var vk = new VK({
-	accessToken: "78a09e73e4e3855bc64389f420069b3fe5fe0cea1342846690211d0fea8f8370966c00ec8d265531c2191",
-	userId: 4320966
+	accessToken: 'c557b1af63962cae6ce930de4c20eee15a61f9e849dc8fbcc0fc6047e271415402f3e8cf740b141b842ee',
+	userId: 316051071
 });
 
 var commandService = new CommandService();
