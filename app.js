@@ -1,23 +1,33 @@
+var config = require('./config');
+
 var VK = require('./vk');
 var MessageService = require('./services/message-service');
 var CommandService = require('./services/command-service');
+var CronService = require('./services/cron-service');
+var FileService = require('./services/file-service');
 
 var googleImagePlugin = require('./plugins/google-image');
-var googleAnimationPlugin = require('./plugins/google-animation');
 var timePlugin = require('./plugins/time');
 
-var vk = new VK({
-	accessToken: 'c557b1af63962cae6ce930de4c20eee15a61f9e849dc8fbcc0fc6047e271415402f3e8cf740b141b842ee',
-	userId: 316051071
-});
+var addFriendCron = require('./plugins/cron-add-friends');
+
+var vk = new VK(config.vk);
 
 var commandService = new CommandService();
+var cronService = new CronService();
+var fileService = new FileService(config.fileService);
 
-commandService.registerCommand(/^!(.*)/, googleImagePlugin(vk));
-commandService.registerCommand(/^@(.*)/, googleAnimationPlugin(vk));
+commandService.registerCommand(/^!(.*)/, googleImagePlugin(vk, fileService));
+commandService.registerCommand(/^@(.*)/, googleImagePlugin(vk, fileService, true));
 commandService.registerCommand(/^текущее время/, timePlugin(vk));
 
-MessageService(vk, commandService.executeCommandIfApply.bind(commandService));
+cronService.registerCron(3600000, addFriendCron(vk));
+
+var onMessage = function(message) {
+	commandService.executeCommandIfApply(message);
+};
+
+MessageService(vk, onMessage);
 
 
 

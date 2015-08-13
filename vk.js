@@ -2,7 +2,6 @@ var Q = require('q');
 var request = require('./request-wrapper');
 var extend = require('util')._extend;
 var fs = require('fs');
-var path = require('path')
 
 module.exports = function(options) {
 	this.accessToken = options.accessToken;
@@ -25,24 +24,6 @@ module.exports = function(options) {
 		});
 	};
 
-	var fileId = 0;
-	var getFile = function() {
-		fileId = (fileId + 1) % 256;
-		return fileId;
-	};
-
-	var saveFile = function(url, ext) {
-		var deferred = Q.defer();
-		var filename = getFile() + ext;
-		var downloadImageStream = request.raw.get(url).pipe(fs.createWriteStream(filename));
-
-		downloadImageStream.on('finish', function() {
-			deferred.resolve(filename);
-		});
-
-		return deferred.promise;
-	};
-
 	this.messages = {};
 
 	this.messages.get = function(data) {
@@ -53,25 +34,21 @@ module.exports = function(options) {
 		return this.executeMethod('messages.send', data);
 	}.bind(this);
 
-	this.messages.getImageAttachmentId = function(url) {
-		console.log('[vk] Attachment url', url);
-
-		return Q.all([this.photos.getMessagesUploadServer(), saveFile(url, '.jpg')])
-			.then(function(res) {
-				var result = res[0];
-				var file = res[1];
-
+	this.messages.getImageAttachmentId = function(file) {
+		return this.photos
+			.getMessagesUploadServer()
+			.then(function(result) {
 				console.log('[vk] Get message upload server', result.response.upload_url);
 				return this.photos.uploadToServer(result.response.upload_url, fs.createReadStream(file));
 			}.bind(this))
-			.then(this.photos.saveMessagesPhoto.bind(this))
+			.then(this.photos.saveMessagesPhoto)
 			.then(function(result) {
 				console.log('[vk] Get photo id', result.response[0].id)
 				return 'photo' + this.userId + '_' + result.response[0].id;
 			}.bind(this))
 			.catch(function(error) {
 				console.error('[vk] Error while getting messages upload server', error);
-			})
+			});
 	}.bind(this);
 
 	this.photos = {};
@@ -101,16 +78,13 @@ module.exports = function(options) {
 
 	this.docs = {};
 
-	this.docs.getAttachmentId = function(url) {
-		console.log('[vk] Document attachment url', url);
-		return Q.all([this.docs.getUploadServer(), saveFile(url, '.gif')])
-			.then(function(res) {
-				var result = res[0];
-				var file = res[1];
-
+	this.docs.getAttachmentId = function(file) {
+		return this.docs
+			.getUploadServer()
+			.then(function(result) {
 				return this.docs.uploadToServer(result.response.upload_url, fs.createReadStream(file));
 			}.bind(this))
-			.then(this.docs.save.bind(this))
+			.then(this.docs.save)
 			.then(function(result) {
 				console.log("[vk] Document uploaded", result);
 				return 'doc' + this.userId + '_' + result.response[0].id;
@@ -141,5 +115,24 @@ module.exports = function(options) {
 		console.log('[vk] Save document');
 		return this.executeMethod('docs.save', data);
 	}.bind(this);
+
+
+	this.friends = {};
+
+	this.friends.getRequests = function(data) {
+		return this.executeMethod('friends.getRequests', data);
+	}.bind(this);
+
+	this.friends.add = function(userId) {
+		return this.executeMethod('friends.add', {user_id: userId});
+	}.bind(this);
+
+
+	this.users = {};
+
+	this.users.getFollowers = function() {
+		return this.executeMethod('users.getFollowers');
+	}.bind(this);
+
 };
 
