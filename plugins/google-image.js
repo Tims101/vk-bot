@@ -4,7 +4,7 @@ module.exports = function(vk, fileService, animated) {
 
 	var GOOGLE_API_URL = 'https://ajax.googleapis.com/ajax/services/search/images';
 	var VERSION = '1.0';
-	var RESULT_SIZE = '3';
+	var RESULT_SIZE = '1';
 
 	var imageNumbers = {};
 

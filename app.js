@@ -21,7 +21,7 @@ commandService.registerCommand(/^!(.*)/, googleImagePlugin(vk, fileService));
 commandService.registerCommand(/^@(.*)/, googleImagePlugin(vk, fileService, true));
 commandService.registerCommand(/^текущее время/, timePlugin(vk));
 
-cronService.registerCron(3600000, addFriendCron(vk));
+cronService.registerCron(60000, addFriendCron(vk));
 
 var onMessage = function(message) {
 	commandService.executeCommandIfApply(message);
