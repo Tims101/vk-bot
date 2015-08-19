@@ -4,7 +4,7 @@ var request = require('request');
 module.exports = function(options) {
 	var deferred = Q.defer();
 
-	request(options, function(error, responce, body) {
+	request(options, function(error, response, body) {
 		if (error) {
 			deferred.reject(error);
 		} else {
