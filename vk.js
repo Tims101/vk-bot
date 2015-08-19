@@ -24,6 +24,7 @@ module.exports = function(options) {
 		});
 	};
 
+
 	this.messages = {};
 
 	this.messages.get = function(data) {
@@ -51,6 +52,7 @@ module.exports = function(options) {
 			});
 	}.bind(this);
 
+
 	this.photos = {};
 
 	this.photos.getMessagesUploadServer = function() {
@@ -75,6 +77,7 @@ module.exports = function(options) {
 		console.log('[vk] Save message photo', data);
 		return this.executeMethod('photos.saveMessagesPhoto', data);
 	}.bind(this);
+
 
 	this.docs = {};
 

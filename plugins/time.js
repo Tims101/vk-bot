@@ -1,6 +1,5 @@
 module.exports = function(vk) {
 	return function(message) {
-		console.log(new Date());
 		return vk.messages.send({
 			chat_id: message.chat_id,
 			user_id: message.chat_id ? undefined : message.user_id,

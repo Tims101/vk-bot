@@ -5,12 +5,6 @@ var request = require('./../request-wrapper');
 module.exports = function(options) {
 	var fileId = 0;
 	var directory = options.directory;
-
-	try {
-		fs.mkdirSync(directory);
-	} catch(e) {
-		console.log('[file-service] Exception while creating directory', e)
-	}
 	
 	var getFilename = function() {
 		fileId++;
