@@ -5,7 +5,7 @@ module.exports = function(vk, onMessage) {
 
 	var initialize = vk.messages.get({count: 1})
 		.then(function(data) {
-			console.log(data);
+			console.log(data, data.response.items);
 			lastMessageId = data.response.items[0].id;
 		})
 		.catch(function(error) {
@@ -17,7 +17,6 @@ module.exports = function(vk, onMessage) {
 			.then(function(data) {
 				var messages = data.response.items;
 				lastMessageId = messages.length ? messages[0].id : lastMessageId;
-
 				messages.reverse().forEach(onMessage);
 			})
 			.catch(function(error) {

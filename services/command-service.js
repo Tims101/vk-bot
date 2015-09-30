@@ -13,7 +13,7 @@ module.exports = function() {
 
 		actions.forEach(function(action) {
 			var matches = message.body.match(action.pattern);
-
+			
 			if (matches) {
 				console.log('[Command-Service] Matches found', matches);
 

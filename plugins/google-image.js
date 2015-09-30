@@ -35,7 +35,9 @@ module.exports = function(vk, fileService, animated) {
 			var filename;
 
 			fileService
-				.downloadAndSaveFile(image, animated ? 'gif' : 'jpg')
+				.downloadAndSaveFile({ 
+					url: image 
+				}, animated ? 'gif' : 'jpg')
 				.then(function(file) {
 					filename = file;
 					return animated ? vk.docs.getAttachmentId(file) : vk.messages.getImageAttachmentId(file);

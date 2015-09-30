@@ -17,16 +17,14 @@ module.exports = function(options) {
 		return directory + '/' + fileId;
 	};
 
-	this.downloadAndSaveFile = function(url, ext) {
+	this.downloadAndSaveFile = function(requestOptions, ext) {
 		var deferred = Q.defer();
 		var file = getFilename() + '.' + ext;
 		console.log('[file-service] Create file', file);
-
+		console.log('[file-service] Request', requestOptions);
 		try {
 			var downloadImageStream = request
-				.raw({
-					url: url
-				})
+				.raw(requestOptions)
 				.pipe(fs.createWriteStream(file));
 
 			downloadImageStream.on('finish', function() {
