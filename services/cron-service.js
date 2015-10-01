@@ -1,5 +1,5 @@
 module.exports = function() {
-	this.registerCron = function(timeInterval, handler) {
-		setInterval(handler, timeInterval);
-	};
+    this.registerCron = function(timeInterval, handler) {
+        setInterval(handler, timeInterval);
+    };
 };

@@ -26,7 +26,7 @@ commandService.registerCommand(/^текущее время/, timePlugin(vk));
 cronService.registerCron(FRIEND_CRON_INTERVAL, addFriendCron(vk));
  
 new MessageService(vk, function onMessage(message) {
-	commandService.executeCommandIfApply(message);
+    commandService.executeCommandIfApply(message);
 });
 
 
